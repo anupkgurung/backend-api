@@ -73,7 +73,7 @@ Two roles are stored on `User.role`: `ORGANIZER` and `CUSTOMER`.
 |--------------------------------|-----------|----------|--------|
 | Register / Login               | ✓         | ✓        | ✓      |
 | Browse events                  | ✓         | ✓        | ✓      |
-| Create / update / delete event | ✓ (own)   | ✗        | ✗      |
+| Create / update event          | ✓ (own)   | ✗        | ✗      |
 | List own events                | ✓         | ✗        | ✗      |
 | Book tickets                   | ✗         | ✓        | ✗      |
 | List own bookings              | ✗         | ✓        | ✗      |
@@ -101,7 +101,7 @@ Booking
 
 **Ticket inventory:** `availableTickets` is decremented inside a **database transaction** when a booking is created, with a post-update check to avoid overselling under concurrency.
 
-**Event updates:** When `totalTickets` increases, `availableTickets` is recalculated as `newTotal - soldCount`. Reducing capacity below already-sold tickets is rejected.
+**Event updates:** Organizers can patch `title`, `description`, or `venue` on their own events; confirmed bookers are notified via the background queue.
 
 ### 4. API surface
 
@@ -121,8 +121,7 @@ Booking
 | GET    | /:id    | No          | Event detail |
 | GET    | /mine   | Organizer   | Organizer’s events |
 | POST   | /       | Organizer   | Create event |
-| PATCH  | /:id    | Organizer   | Update own event (triggers notifications) |
-| DELETE | /:id    | Organizer   | Delete own event |
+| PATCH  | /:id    | Organizer   | Update title, description, or venue (triggers notifications) |
 
 #### Bookings — `/api/bookings`
 

@@ -17,7 +17,11 @@ const createEventSchema = z.object({
   pricePerTicket: z.number().positive(),
 });
 
-const updateEventSchema = createEventSchema.partial();
+const updateEventSchema = z.object({
+  title: z.string().min(1).max(200).optional(),
+  description: z.string().min(1).optional(),
+  venue: z.string().min(1).optional(),
+});
 
 router.get("/", async (req, res, next) => {
   try {
@@ -76,20 +80,6 @@ router.patch(
       const body = updateEventSchema.parse(req.body);
       const event = await eventService.updateEvent(routeParam(req, "id"), req.user!.id, body);
       res.json({ event });
-    } catch (err) {
-      next(err);
-    }
-  }
-);
-
-router.delete(
-  "/:id",
-  authenticate,
-  requireRoles(Role.ORGANIZER),
-  async (req, res, next) => {
-    try {
-      await eventService.deleteEvent(routeParam(req, "id"), req.user!.id);
-      res.status(204).send();
     } catch (err) {
       next(err);
     }
